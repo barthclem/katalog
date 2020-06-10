@@ -1,0 +1,34 @@
+version: '3'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  db.postgres:
+    container_name: db.postgres
+    image: postgres:10
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=user
+      - POSTGRES_DB=katalog
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      - app-tier
+
+  katalog:
+    build:
+      context: .
+    container_name: katalog
+    environment:
+      - DATABASE_URL=jdbc:postgresql://katalog:5432/katalogy?createDatabaseIfNotExist=true&useSSL=false
+      - DATABASES_USER=myuser
+      - DATABASE_PASSWORD=user
+      - DEFAULT_CATEGORY=Car
+    ports:
+      - '8080:8080'
+    networks:
+      - app-tier
